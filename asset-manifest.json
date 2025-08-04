@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/MTSLchat/static/css/main.e6c13ad2.css",
+    "main.js": "/MTSLchat/static/js/main.c28d5ec9.js",
+    "static/js/453.5d133b93.chunk.js": "/MTSLchat/static/js/453.5d133b93.chunk.js",
+    "index.html": "/MTSLchat/index.html",
+    "main.e6c13ad2.css.map": "/MTSLchat/static/css/main.e6c13ad2.css.map",
+    "main.c28d5ec9.js.map": "/MTSLchat/static/js/main.c28d5ec9.js.map",
+    "453.5d133b93.chunk.js.map": "/MTSLchat/static/js/453.5d133b93.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.c28d5ec9.js"
+  ]
+}
