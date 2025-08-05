@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Message } from '../types';
+import chatService from '../services/realChatService';
 
 const Container = styled.div`
   display: flex;
@@ -342,6 +343,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
   const [newMessage, setNewMessage] = useState('');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -349,9 +351,42 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
 
   useEffect(scrollToBottom, [messages]);
 
+  // 타이핑 이벤트 핸들러
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMessage(value);
+    
+    // 타이핑 시작 알림
+    if (value.length > 0) {
+      chatService.setTyping(true);
+      
+      // 기존 타임아웃 클리어
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      // 2초 후 타이핑 중지 알림
+      typingTimeoutRef.current = setTimeout(() => {
+        chatService.setTyping(false);
+      }, 2000);
+    } else {
+      // 입력이 비어있으면 타이핑 중지
+      chatService.setTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
+      // 타이핑 중지
+      chatService.setTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
       onSendMessage(newMessage.trim());
       setNewMessage('');
     }
@@ -361,6 +396,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (newMessage.trim()) {
+        // 타이핑 중지
+        chatService.setTyping(false);
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        
         onSendMessage(newMessage.trim());
         setNewMessage('');
       }
@@ -467,7 +508,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
             type="text"
             placeholder="메시지를 입력하세요..."
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             maxLength={500}
           />
